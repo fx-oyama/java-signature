@@ -1,0 +1,1 @@
+This program is a tool to analyze a given sentence by Ngram method.
