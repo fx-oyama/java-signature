@@ -1,1 +1,8 @@
-This program is a tool to analyze a given sentence by Ngram method.
+Signature
+=========
+Create a Signature for REST API Request.
+
+Abstract
+--------
+This source code is Java, not a jar file.  
+So, if you use this source code, you copied.
