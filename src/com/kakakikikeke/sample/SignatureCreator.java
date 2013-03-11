@@ -1,4 +1,4 @@
-package jp.geocities.www.signature;
+package com.kakakikikeke.sample;
 
 import java.net.URLEncoder;
 import java.security.SignatureException;
