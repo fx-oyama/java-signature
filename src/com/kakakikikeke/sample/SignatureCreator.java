@@ -1,11 +1,13 @@
 package com.kakakikikeke.sample;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.SignatureException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.*;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * SignatureÇÃê∂ê¨Çä«óùÇ∑ÇÈÉNÉâÉX
@@ -50,22 +52,19 @@ public class SignatureCreator {
 	 * @return
 	 * @throws java.security.SignatureException
 	 */
-	public static String calculateRFC2104HMAC(String data, String key) throws java.security.SignatureException {
-		String result;
+	 public static String createSignature(String data, String key) throws java.security.SignatureException {
+		String signature;
 		try {
 			SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
 			Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
 			mac.init(signingKey);
 			byte[] rawHmac = mac.doFinal(data.getBytes());
-			System.out.println("rawHmac:\t" + rawHmac.toString());
 			String base64 = Base64.encodeBase64String(rawHmac);
-			System.out.print("base64:\t\t" + base64);
-			result = URLEncoder.encode(base64, "UTF-8");
-			System.out.println("result:\t\t" + result);
+			signature = URLEncoder.encode(base64, "UTF-8");
 		} catch (Exception e) {
 			throw new SignatureException("Failed to generate HMAC : " + e.getMessage());
 		}
-		return result;
+		return signature;
 	}
 
 	/**
@@ -75,12 +74,18 @@ public class SignatureCreator {
 	 */
 	public static void main(String[] args) {
 		String key = "Your Secret AccessKey";
-		String action = "API Name";
-		String timestamp = "SSSSS";
-		String data = action + timestamp;
+		String action = "API name";
+		// String timestamp = "SSSSS";
+		Date d = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.256'Z'");
+		String timestamp = sdf.format(d).toString();
 		try {
-			SignatureCreator.calculateRFC2104HMAC(data, key);
+			String signature = SignatureCreator.createSignature(action + timestamp, key);
+			System.out.println("Timestamp:\t" + URLEncoder.encode(timestamp, "UTF-8"));
+			System.out.println("Signature:\t" + signature);
 		} catch (SignatureException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
