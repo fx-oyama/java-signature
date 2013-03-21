@@ -52,7 +52,7 @@ public class SignatureCreator {
 	 * @return
 	 * @throws java.security.SignatureException
 	 */
-	 public static String createSignature(String data, String key) throws java.security.SignatureException {
+	 public String createSignature(String data, String key) throws java.security.SignatureException {
 		String signature;
 		try {
 			SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
@@ -68,6 +68,17 @@ public class SignatureCreator {
 	}
 
 	/**
+	 * Signature生成時に必要なタイムスタンプを取得する
+	 *
+	 * @return date
+	 */
+	public static String getFormattedDateForSignature() {
+		Date d = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.256'Z'");
+		return sdf.format(d).toString();
+	}
+
+	/**
 	 * 実行メインメソッド
 	 *
 	 * @param args
@@ -76,12 +87,10 @@ public class SignatureCreator {
 		String key = "Your Secret AccessKey";
 		String action = "API name";
 		// String timestamp = "SSSSS";
-		Date d = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.256'Z'");
-		String timestamp = sdf.format(d).toString();
+		String timestamp = getFormattedDateForSignature();
 		try {
-			String signature = SignatureCreator.createSignature(action + timestamp, key);
-			System.out.println("Timestamp:\t" + URLEncoder.encode(timestamp, "UTF-8"));
+		    System.out.println("Timestamp:\t" + URLEncoder.encode(timestamp, "UTF-8"));
+		    String signature = new SignatureCreator().createSignature(action + timestamp, key);
 			System.out.println("Signature:\t" + signature);
 		} catch (SignatureException e) {
 			e.printStackTrace();
