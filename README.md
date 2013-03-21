@@ -13,12 +13,14 @@ For Exsample, Please input your key, action and timestamp, after run the program
 ```java
 public static void main(String[] args) {
   String key = "Your Secret AccessKey";
-  String action = "API Name";
-  String timestamp = "SSSSS";
-  String data = action + timestamp;
+  String action = "API name";
+  String timestamp = getFormattedDateForSignature();
   try {
-    SignatureCreator.calculateRFC2104HMAC(data, key);
+    String signature = new SignatureCreator().createSignature(action + timestamp, key);
+    System.out.println("Signature:\t" + signature);
   } catch (SignatureException e) {
+    e.printStackTrace();
+  } catch (UnsupportedEncodingException e) {
     e.printStackTrace();
   }
 }
