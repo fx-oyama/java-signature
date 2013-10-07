@@ -74,7 +74,7 @@ public class SignatureCreator {
 	 */
 	public static String getFormattedDateForSignature() {
 		Date d = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.256'Z'");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.256'Z'");
 		return sdf.format(d).toString();
 	}
 
