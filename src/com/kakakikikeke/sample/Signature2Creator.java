@@ -94,7 +94,8 @@ public class Signature2Creator {
 	private String timestamp() {
 		String timestamp = null;
 		Calendar cal = Calendar.getInstance();
-//		DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.256'Z'");
+		// DateFormat dfm = new
+		// SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.256'Z'");
 		DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		dfm.setTimeZone(TimeZone.getTimeZone("JST"));
 		timestamp = dfm.format(cal.getTime());
