@@ -94,7 +94,7 @@ public class CallAws {
 		this.setRequestURL("https://" + this.getEndpoint() + REQUEST_URI + "?" + canonicalQS + "&Signature=" + sig);
 		execUrl("GET");
 	}
-	
+
 	public void setProxy(String proxyHostName, int portNumber) {
 		this.hc.getHostConfiguration().setProxy(proxyHostName, portNumber);
 	}
@@ -220,10 +220,24 @@ public class CallAws {
 		return null;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		String endpoint = "";
-		String action = "ListQueues";
+		String action = "";
 		String body = "";
+		try {
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].equals("-e")) {
+					endpoint = args[i + 1];
+				} else if (args[i].equals("-a")) {
+					action = args[i + 1];
+				} else if (args[i].equals("-b")) {
+					body = args[i + 1];
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			System.err.print("Usage : java -jar CallAws-jar-with-dependencies.jar -e endpoint -a actionname -b {\\\"key\\\";\\\"value\\\"}");
+			System.exit(1);
+		}
 		CallAws ca = new CallAws(endpoint, action, body);
 		ca.setProxy("webgate-1.office.nifty.co.jp", 8080);
 		ca.call();
