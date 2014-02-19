@@ -12,6 +12,11 @@ import java.util.TreeMap;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -24,7 +29,8 @@ public class CallAws {
 
 	private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
 	private static final String REQUEST_URI = "/";
-	private static final String REQUEST_METHOD = "GET";
+	private static final String GET_METHOD = "GET";
+	private static final String POST_METHOD = "POST";
 	private static final String SIGNATURE_VERSION = "2";
 	private static final String DEFAULT_ENDPOINT = "mq.jp-east-1.api.cloud.nifty.com";
 
@@ -33,16 +39,22 @@ public class CallAws {
 	private String body;
 	private String accessKey;
 	private String secretKey;
+	private String requestURL;
+	private int responceCode;
+	private String responceBody;
+	private HttpClient hc;
 
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
 
 	public CallAws(String endpoint, String action, String body) {
 		checkAction(action);
+		this.hc = new HttpClient();
 		if (endpoint.equals("") || endpoint == null) {
 			this.setEndpoint(DEFAULT_ENDPOINT);
 		} else {
-			this.setEndpoint(endpoint);;
+			this.setEndpoint(endpoint);
+			;
 		}
 		this.setAction(action);
 		this.setBody(body);
@@ -51,6 +63,7 @@ public class CallAws {
 
 	public CallAws(String action, String body) {
 		checkAction(action);
+		this.hc = new HttpClient();
 		this.setEndpoint(DEFAULT_ENDPOINT);
 		this.setAction(action);
 		this.setBody(body);
@@ -59,13 +72,14 @@ public class CallAws {
 
 	public CallAws(String action) {
 		checkAction(action);
+		this.hc = new HttpClient();
 		this.setEndpoint(DEFAULT_ENDPOINT);
 		this.setAction(action);
 		this.setBody("");
 		init();
 	}
 
-	public String call() {
+	public void call() {
 		Map<String, String> params = convertMap(this.getBody());
 		params.put("Action", this.getAction());
 		params.put("AccessKeyId", accessKey);
@@ -74,13 +88,17 @@ public class CallAws {
 		params.put("SignatureMethod", HMAC_SHA256_ALGORITHM);
 		SortedMap<String, String> sortedParamMap = new TreeMap<String, String>(params);
 		String canonicalQS = Utils.canonicalize(sortedParamMap);
-		String toSign = REQUEST_METHOD + "\n" + this.getEndpoint() + "\n" + REQUEST_URI + "\n" + canonicalQS;
+		String toSign = GET_METHOD + "\n" + this.getEndpoint() + "\n" + REQUEST_URI + "\n" + canonicalQS;
 		String hmac = Utils.hmac(toSign, mac);
 		String sig = Utils.percentEncodeRfc3986(hmac);
-		String url = "https://" + this.getEndpoint() + REQUEST_URI + "?" + canonicalQS + "&Signature=" + sig;
-		return url;
+		this.setRequestURL("https://" + this.getEndpoint() + REQUEST_URI + "?" + canonicalQS + "&Signature=" + sig);
+		execUrl("GET");
 	}
 	
+	public void setProxy(String proxyHostName, int portNumber) {
+		this.hc.getHostConfiguration().setProxy(proxyHostName, portNumber);
+	}
+
 	public String getEndpoint() {
 		return endpoint;
 	}
@@ -104,7 +122,51 @@ public class CallAws {
 	public void setBody(String body) {
 		this.body = body;
 	}
-	
+
+	public String getRequestURL() {
+		return requestURL;
+	}
+
+	public void setRequestURL(String requestURL) {
+		this.requestURL = requestURL;
+	}
+
+	public int getResponceCode() {
+		return responceCode;
+	}
+
+	public void setResponceCode(int responceCode) {
+		this.responceCode = responceCode;
+	}
+
+	public String getResponceBody() {
+		return responceBody;
+	}
+
+	public void setResponceBody(String responceBody) {
+		this.responceBody = responceBody;
+	}
+
+	private void execUrl(String method) {
+		HttpMethodBase hmb;
+		if (method.equals(GET_METHOD)) {
+			hmb = new GetMethod(this.getRequestURL());
+		} else if (method.equals(POST_METHOD)) {
+			hmb = new PostMethod(this.getRequestURL());
+		} else {
+			hmb = new GetMethod(this.getRequestURL());
+		}
+		try {
+			this.setResponceCode(hc.executeMethod(hmb));
+			this.setResponceBody(hmb.getResponseBodyAsString());
+		} catch (HttpException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	private void checkAction(String action) {
 		if (action.equals("") || action == null) {
 			System.err.println("Do not set Action");
@@ -145,7 +207,8 @@ public class CallAws {
 			if (json.equals("") || json == null) {
 				return new HashMap<String, String>();
 			} else {
-				return mapper.readValue(json, new TypeReference<HashMap<String, String>>() {});
+				return mapper.readValue(json, new TypeReference<HashMap<String, String>>() {
+				});
 			}
 		} catch (JsonParseException e) {
 			e.printStackTrace();
@@ -161,8 +224,12 @@ public class CallAws {
 		String endpoint = "";
 		String action = "ListQueues";
 		String body = "";
-		String url = new CallAws(endpoint, action, body).call();
-		System.out.println(url);
+		CallAws ca = new CallAws(endpoint, action, body);
+		ca.setProxy("webgate-1.office.nifty.co.jp", 8080);
+		ca.call();
+		System.out.println(ca.getRequestURL());
+		System.out.println(ca.getResponceCode());
+		System.out.println(ca.getResponceBody());
 	}
 
 }
