@@ -1,27 +1,21 @@
 package com.kakakikikeke.sample;
 
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TimeZone;
 import java.util.TreeMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+
+import com.kakakikikeke.sample.utils.Utils;
 
 public class Signature2Creator {
 	private static final String UTF8_CHARSET = "UTF-8";
@@ -61,7 +55,7 @@ public class Signature2Creator {
 		// params.put("AWSAccessKeyId", awsAccessKeyId);
 		params.put("Action", "ListQueues");
 		params.put("AccessKeyId", accessKeyId);
-		params.put("Timestamp", timestamp());
+		params.put("Timestamp", Utils.getTimestamp());
 		params.put("SignatureVersion", "2");
 		params.put("SignatureMethod", "HmacSHA256");
 
@@ -89,17 +83,6 @@ public class Signature2Creator {
 			throw new RuntimeException(UTF8_CHARSET + " is unsupported!", e);
 		}
 		return signature;
-	}
-
-	private String timestamp() {
-		String timestamp = null;
-		Calendar cal = Calendar.getInstance();
-		// DateFormat dfm = new
-		// SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.256'Z'");
-		DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		dfm.setTimeZone(TimeZone.getTimeZone("JST"));
-		timestamp = dfm.format(cal.getTime());
-		return timestamp;
 	}
 
 	private String canonicalize(SortedMap<String, String> sortedParamMap) {
