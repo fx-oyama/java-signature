@@ -241,7 +241,7 @@ public class CallAws {
 		CallAws ca = new CallAws(endpoint, action, body);
 		String proxyHost = "proxy_hostname";
 		int proxyPort = 8080;
-		ca.setProxy(proxyHostname, proxyPort);
+		ca.setProxy(proxyHost, proxyPort);
 		ca.call();
 		System.out.println(ca.getRequestURL());
 		System.out.println(ca.getResponceCode());
