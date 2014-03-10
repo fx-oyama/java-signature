@@ -18,6 +18,7 @@ import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -50,6 +51,7 @@ public class CallAws {
 
 	public CallAws(String endpoint, String action, String body, boolean unSecureFlag) {
 		checkAction(action);
+		checkJson(body);
 		this.hc = new HttpClient();
 		if (endpoint.equals("") || endpoint == null) {
 			this.setEndpoint(DEFAULT_ENDPOINT);
@@ -165,6 +167,22 @@ public class CallAws {
 		if (action.equals("") || action == null) {
 			System.err.println("Do not set Action");
 			System.exit(1);
+		}
+	}
+
+	private void checkJson(String body) {
+		if (!body.equals("") && body != null) {
+			try {
+				JsonParser parser = new ObjectMapper().getJsonFactory().createJsonParser(body);
+				while (parser.nextToken() != null) {
+				}
+			} catch (JsonParseException e) {
+				System.err.println("Json validate error");
+				System.exit(1);
+			} catch (IOException e) {
+				System.err.println("Json validate error");
+				System.exit(1);
+			}
 		}
 	}
 
