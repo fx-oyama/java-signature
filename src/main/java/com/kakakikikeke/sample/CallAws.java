@@ -37,6 +37,7 @@ public class CallAws {
 	private String endpoint;
 	private String action;
 	private String body;
+	private String protocol = "https://";
 	private String accessKey;
 	private String secretKey;
 	private String requestURL;
@@ -47,7 +48,7 @@ public class CallAws {
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
 
-	public CallAws(String endpoint, String action, String body) {
+	public CallAws(String endpoint, String action, String body, boolean unSecureFlag) {
 		checkAction(action);
 		this.hc = new HttpClient();
 		if (endpoint.equals("") || endpoint == null) {
@@ -56,26 +57,11 @@ public class CallAws {
 			this.setEndpoint(endpoint);
 			;
 		}
+		if (unSecureFlag) {
+			this.setProtocol("http://");
+		}
 		this.setAction(action);
 		this.setBody(body);
-		init();
-	}
-
-	public CallAws(String action, String body) {
-		checkAction(action);
-		this.hc = new HttpClient();
-		this.setEndpoint(DEFAULT_ENDPOINT);
-		this.setAction(action);
-		this.setBody(body);
-		init();
-	}
-
-	public CallAws(String action) {
-		checkAction(action);
-		this.hc = new HttpClient();
-		this.setEndpoint(DEFAULT_ENDPOINT);
-		this.setAction(action);
-		this.setBody("");
 		init();
 	}
 
@@ -91,7 +77,7 @@ public class CallAws {
 		String toSign = GET_METHOD + "\n" + this.getEndpoint() + "\n" + REQUEST_URI + "\n" + canonicalQS;
 		String hmac = Utils.hmac(toSign, mac);
 		String sig = Utils.percentEncodeRfc3986(hmac);
-		this.setRequestURL("https://" + this.getEndpoint() + REQUEST_URI + "?" + canonicalQS + "&Signature=" + sig);
+		this.setRequestURL(getProtocol() + this.getEndpoint() + REQUEST_URI + "?" + canonicalQS + "&Signature=" + sig);
 		execUrl("GET");
 	}
 
@@ -121,6 +107,14 @@ public class CallAws {
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
 	}
 
 	public String getRequestURL() {
@@ -224,6 +218,10 @@ public class CallAws {
 		String endpoint = "";
 		String action = "";
 		String body = "";
+		boolean secureFlag = false;
+		if (args.length == 0) {
+			showErrorAndExit();
+		}
 		try {
 			for (int i = 0; i < args.length; i++) {
 				if (args[i].equals("-e")) {
@@ -232,20 +230,26 @@ public class CallAws {
 					action = args[i + 1];
 				} else if (args[i].equals("-b")) {
 					body = args[i + 1];
+				} else if (args[i].equals("-u")) {
+					secureFlag = true;
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.err.print("Usage : java -jar CallAws-jar-with-dependencies.jar -e endpoint -a actionname -b {\\\"key\\\";\\\"value\\\"}");
-			System.exit(1);
+			showErrorAndExit();
 		}
-		CallAws ca = new CallAws(endpoint, action, body);
-		String proxyHost = "proxy_hostname";
+		CallAws ca = new CallAws(endpoint, action, body, secureFlag);
+		String proxyHost = "proxy_host";
 		int proxyPort = 8080;
 		ca.setProxy(proxyHost, proxyPort);
 		ca.call();
 		System.out.println(ca.getRequestURL());
 		System.out.println(ca.getResponceCode());
 		System.out.println(ca.getResponceBody());
+	}
+
+	private static void showErrorAndExit() {
+		System.err.print("Usage : java -jar CallAws-jar-with-dependencies.jar -e endpoint -a actionname -b {\\\"key\\\";\\\"value\\\"} -u");
+		System.exit(1);
 	}
 
 }

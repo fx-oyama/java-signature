@@ -23,9 +23,10 @@ public class Signature2Creator {
 	private static final String REQUEST_URI = "/";
 	private static final String REQUEST_METHOD = "GET";
 
-	private String endpoint = "sample.kakakikikeke.com";
-	private String accessKeyId = "aaabbbccc";
-	private String secretKey = "dddeeefffggghhhiii";
+	private String endpoint = "mq.jp-east-1.api.cloud.nifty.com";
+	private String accessKeyId = "Your AccessKey";
+	private String secretKey = "Your Secret AccessKey";
+	private String action = "API name";
 
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
@@ -53,7 +54,7 @@ public class Signature2Creator {
 	public String sign() {
 		Map<String, String> params = new HashMap<String, String>();
 		// params.put("AWSAccessKeyId", awsAccessKeyId);
-		params.put("Action", "ListQueues");
+		params.put("Action", action);
 		params.put("AccessKeyId", accessKeyId);
 		params.put("Timestamp", Utils.getTimestamp());
 		params.put("SignatureVersion", "2");
