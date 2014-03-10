@@ -239,7 +239,9 @@ public class CallAws {
 			System.exit(1);
 		}
 		CallAws ca = new CallAws(endpoint, action, body);
-		ca.setProxy("webgate-1.office.nifty.co.jp", 8080);
+		String proxyHost = "proxy_hostname";
+		int proxyPort = 8080;
+		ca.setProxy(proxyHostname, proxyPort);
 		ca.call();
 		System.out.println(ca.getRequestURL());
 		System.out.println(ca.getResponceCode());
