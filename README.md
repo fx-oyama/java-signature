@@ -43,8 +43,9 @@ How to Use
 
 * -a ･･･ ActionName
 * -e ･･･ Endpoint
-* -b ･･･ RequestBody
-* -u ･･･ to use http protocol instead of https
+* -b ･･･ RequestBody formatted is json ex) {"QueueNamePrefix":"test"}
+* -u ･･･ to use http protocol instead of https ex) -u
+* -p ･･･ proxy ex) -p proxy_host_name:8080
 
 Configuration
 -------------

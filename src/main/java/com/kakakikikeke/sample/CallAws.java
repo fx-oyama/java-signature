@@ -177,10 +177,10 @@ public class CallAws {
 				while (parser.nextToken() != null) {
 				}
 			} catch (JsonParseException e) {
-				System.err.println("Json validate error");
+				System.err.println("Invalid Json format error");
 				System.exit(1);
 			} catch (IOException e) {
-				System.err.println("Json validate error");
+				System.err.println("Invalid Json format error");
 				System.exit(1);
 			}
 		}
@@ -237,6 +237,7 @@ public class CallAws {
 		String action = "";
 		String body = "";
 		boolean secureFlag = false;
+		String proxy = null;
 		if (args.length == 0) {
 			showErrorAndExit();
 		}
@@ -250,15 +251,25 @@ public class CallAws {
 					body = args[i + 1];
 				} else if (args[i].equals("-u")) {
 					secureFlag = true;
+				} else if (args[i].equals("-p")) {
+					proxy = args[i + 1];
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			showErrorAndExit();
 		}
 		CallAws ca = new CallAws(endpoint, action, body, secureFlag);
-		String proxyHost = "proxy_host";
-		int proxyPort = 8080;
-		ca.setProxy(proxyHost, proxyPort);
+		if (proxy != null && !proxy.equals("")) {
+			try {
+				String[] proxyInfo = proxy.split(":");
+				String proxyHost = proxyInfo[0];
+				int proxyPort = Integer.parseInt(proxyInfo[1]);
+				ca.setProxy(proxyHost, proxyPort);
+			} catch (Exception e) {
+				System.err.print("Invalid proxy format error : ex) -p proxy_host:8080");
+				System.exit(1);
+			}
+		}
 		ca.call();
 		System.out.println(ca.getRequestURL());
 		System.out.println(ca.getResponceCode());
