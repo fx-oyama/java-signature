@@ -41,11 +41,14 @@ How to Use
 
 #### jar options
 
-* -a ･･･ ActionName
 * -e ･･･ Endpoint
-* -b ･･･ RequestBody formatted is json ex) {"QueueNamePrefix":"test"}
+* -a ･･･ ActionName
+* -b ･･･ RequestBody formatted is json ex) '{"QueueNamePrefix":"test"}'
 * -u ･･･ to use http protocol instead of https ex) -u
-* -p ･･･ proxy ex) -p proxy_host_name:8080
+  * This parameter is only specify a parameter name
+* -r ･･･ RequestUri ex) -r 'abc12345/testQueue'
+  * Did not write the srash in first
+* -p ･･･ Proxy ex) -p proxy_host_name:8080
 
 Configuration
 -------------
