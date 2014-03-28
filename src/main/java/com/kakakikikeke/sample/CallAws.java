@@ -50,7 +50,7 @@ public class CallAws {
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
 
-	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri) {
+	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String accesskey, String secretkey) {
 		checkAction(action);
 		checkJson(body);
 		this.hc = new HttpClient();
@@ -70,6 +70,8 @@ public class CallAws {
 		}
 		this.setAction(action);
 		this.setBody(body);
+		this.setAccessKey(accesskey);
+		this.setSecretKey(secretkey);
 		init();
 	}
 
@@ -131,6 +133,22 @@ public class CallAws {
 
 	public void setRequestUri(String requestUri) {
 		this.requestUri = requestUri;
+	}
+
+	public String getAccessKey() {
+		return accessKey;
+	}
+
+	public void setAccessKey(String accessKey) {
+		this.accessKey = accessKey;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 
 	public String getRequestURL() {
@@ -223,8 +241,12 @@ public class CallAws {
 
 	private void setKey() {
 		KeyPropertiesManager kpm = new KeyPropertiesManager();
-		this.accessKey = (String) kpm.get("access_key");
-		this.secretKey = (String) kpm.get("secret_key");
+		if (getAccessKey().equals("") || getAccessKey() == null) {
+			setAccessKey((String) kpm.get("access_key"));
+		}
+		if (getSecretKey().equals("") || getSecretKey() == null) {
+			setSecretKey((String) kpm.get("secret_key"));
+		}
 	}
 
 	private Map<String, String> convertMap(String json) {
@@ -253,6 +275,8 @@ public class CallAws {
 		boolean secureFlag = false;
 		String proxy = null;
 		String requestUri = "";
+		String accesskey = "";
+		String secretkey = "";
 		if (args.length == 0) {
 			showErrorAndExit();
 		}
@@ -270,12 +294,16 @@ public class CallAws {
 					requestUri = args[i + 1];
 				} else if (args[i].equals("-p")) {
 					proxy = args[i + 1];
+				} else if (args[i].equals("--accesskey")) {
+					accesskey = args[i + 1];
+				} else if (args[i].equals("--secretkey")) {
+					secretkey = args[i + 1];
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			showErrorAndExit();
 		}
-		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri);
+		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, accesskey, secretkey);
 		if (proxy != null && !proxy.equals("")) {
 			try {
 				String[] proxyInfo = proxy.split(":");
@@ -296,6 +324,7 @@ public class CallAws {
 	private static void showErrorAndExit() {
 		System.err.println("Usage : java -jar CallAws-jar-with-dependencies.jar -e endpoint -a actionname -b {\\\"key\\\";\\\"value\\\"}");
 		System.err.println("Options : -u unused ssl, -r requesturi, -p proxy");
+		System.err.println("Options : --accesskey xxxxxxxxx, --secretkey xxxxxxxxx");
 		System.exit(1);
 	}
 
