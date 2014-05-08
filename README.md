@@ -87,7 +87,7 @@ private String action = "API name";
 
 * When you execute jar file
   * Please input your access key and secret key in src/main/resources/com/kakakikikeke/sample/utils/key.properties
-  * Or, to use optionsu--accesskeyvandu--secretkeyv
+  * Or, to use optionsã€Œ--accesskeyã€andã€Œ--secretkeyã€
 
 Tips
 ----
