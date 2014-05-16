@@ -29,6 +29,7 @@ import com.kakakikikeke.sample.utils.Utils;
 public class CallAws {
 
 	private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
+	private static final String DEFAULT_VERSION = "2012-11-05";
 	private static final String DEFAULT_REQUEST_URI = "/";
 	private static final String GET_METHOD = "GET";
 	private static final String POST_METHOD = "POST";
@@ -40,6 +41,7 @@ public class CallAws {
 	private String body;
 	private String protocol = "https://";
 	private String requestUri;
+	private String version;
 	private String accessKey;
 	private String secretKey;
 	private String requestURL;
@@ -50,7 +52,7 @@ public class CallAws {
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
 
-	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String accesskey, String secretkey) {
+	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String version, String accesskey, String secretkey) {
 		checkAction(action);
 		checkJson(body);
 		this.hc = new HttpClient();
@@ -68,6 +70,11 @@ public class CallAws {
 		} else {
 			this.setRequestUri(DEFAULT_REQUEST_URI + requestUri);
 		}
+		if (version.equals("") || version == null) {
+			this.setVersion(DEFAULT_VERSION);
+		} else {
+			this.setVersion(version);
+		}
 		this.setAction(action);
 		this.setBody(body);
 		this.setAccessKey(accesskey);
@@ -82,6 +89,7 @@ public class CallAws {
 		params.put("Timestamp", Utils.getTimestamp());
 		params.put("SignatureVersion", SIGNATURE_VERSION);
 		params.put("SignatureMethod", HMAC_SHA256_ALGORITHM);
+		params.put("Version", this.getVersion());
 		SortedMap<String, String> sortedParamMap = new TreeMap<String, String>(params);
 		String canonicalQS = Utils.canonicalize(sortedParamMap);
 		String toSign = GET_METHOD + "\n" + this.getEndpoint() + "\n" + getRequestUri() + "\n" + canonicalQS;
@@ -133,6 +141,14 @@ public class CallAws {
 
 	public void setRequestUri(String requestUri) {
 		this.requestUri = requestUri;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public String getAccessKey() {
@@ -274,6 +290,7 @@ public class CallAws {
 		String body = "";
 		boolean secureFlag = false;
 		String proxy = null;
+		String version = "";
 		String requestUri = "";
 		String accesskey = "";
 		String secretkey = "";
@@ -294,6 +311,8 @@ public class CallAws {
 					requestUri = args[i + 1];
 				} else if (args[i].equals("-p")) {
 					proxy = args[i + 1];
+				} else if (args[i].equals("-v")) {
+					version = args[i + 1];
 				} else if (args[i].equals("--accesskey")) {
 					accesskey = args[i + 1];
 				} else if (args[i].equals("--secretkey")) {
@@ -303,7 +322,7 @@ public class CallAws {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			showErrorAndExit();
 		}
-		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, accesskey, secretkey);
+		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, version, accesskey, secretkey);
 		if (proxy != null && !proxy.equals("")) {
 			try {
 				String[] proxyInfo = proxy.split(":");
@@ -323,7 +342,7 @@ public class CallAws {
 
 	private static void showErrorAndExit() {
 		System.err.println("Usage : java -jar CallAws-jar-with-dependencies.jar -e endpoint -a actionname -b {\\\"key\\\";\\\"value\\\"}");
-		System.err.println("Options : -u unused ssl, -r requesturi, -p proxy");
+		System.err.println("Options : -u unused ssl, -r requesturi, -p proxy, -v version");
 		System.err.println("Options : --accesskey xxxxxxxxx, --secretkey xxxxxxxxx");
 		System.exit(1);
 	}
