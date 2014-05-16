@@ -78,7 +78,7 @@ public class CallAws {
 	public void call() {
 		Map<String, String> params = convertMap(this.getBody());
 		params.put("Action", this.getAction());
-		params.put("AccessKeyId", accessKey);
+		params.put("AWSAccessKeyId", accessKey);
 		params.put("Timestamp", Utils.getTimestamp());
 		params.put("SignatureVersion", SIGNATURE_VERSION);
 		params.put("SignatureMethod", HMAC_SHA256_ALGORITHM);
