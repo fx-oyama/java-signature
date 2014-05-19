@@ -49,6 +49,8 @@ How to Use
 * -r ･･･ RequestUri ex) -r 'abc12345/testQueue'
   * Did not write the srash in first
 * -p ･･･ Proxy ex) -p proxy_host_name:8080
+* -v ･･･ API Version
+* -nv ･･･ Not contain Version Parameter (-v)
 * --accesskey ･･･ Please input your accesskey or write to key.properties
 * --secretkey ･･･ Please input your secretkey or write to key.properties
 
@@ -76,7 +78,7 @@ public static void main(String[] args) {
 ```
 
 * When you create signature v2, please input your access key, secret access key, action name and endpoint
-* And after run the `SignatureCreator.java`.
+* And after run the `SignatureCreator.java`
 
 ```java
 private String endpoint = "mq.jp-east-1.api.cloud.nifty.com";
@@ -88,6 +90,7 @@ private String action = "API name";
 * When you execute jar file
   * Please input your access key and secret key in src/main/resources/com/kakakikikeke/sample/utils/key.properties
   * Or, to use options「--accesskey」and「--secretkey」
+  * And after run the maven command and to execute jar
 
 Tips
 ----
