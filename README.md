@@ -36,7 +36,7 @@ How to Use
 
 ### To execute aws base rest API using signature v2
 
-* `mvn clean package`
+* `mvn clean compile package`
 * `java -jar target/CallAws-jar-with-dependencies.jar -a ListQueues -e mq.jp-east-1.api.cloud.nifty.com` 
 
 #### jar options
