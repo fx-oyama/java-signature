@@ -307,6 +307,7 @@ public class CallAws {
 		String requestUri = "";
 		String accesskey = "";
 		String secretkey = "";
+		boolean onlyXmlFlag = false;
 		if (args.length == 0) {
 			showErrorAndExit();
 		}
@@ -332,6 +333,8 @@ public class CallAws {
 					accesskey = args[i + 1];
 				} else if (args[i].equals("--secretkey")) {
 					secretkey = args[i + 1];
+				} else if (args[i].equals("--only-xml")) {
+					onlyXmlFlag = true;
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -350,8 +353,10 @@ public class CallAws {
 			}
 		}
 		ca.call();
-		System.out.println(ca.getRequestURL());
-		System.out.println(ca.getResponceCode());
+		if (!onlyXmlFlag) {
+			System.out.println(ca.getRequestURL());
+			System.out.println(ca.getResponceCode());
+		}
 		System.out.println(ca.getResponceBody());
 	}
 
