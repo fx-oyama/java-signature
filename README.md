@@ -21,8 +21,7 @@ How to Use
 
 ### How to install
 
-* Import eclipse project
-  * http://kakakikikeke.blogspot.jp/2012/05/githubpubliceclipse.html
+* [Import eclipse project](http://kakakikikeke.blogspot.jp/2012/12/githubandroideclipse.html)
 * Add to the configuration of build path
 * As options, please install the maven plugin for eclipse
 
