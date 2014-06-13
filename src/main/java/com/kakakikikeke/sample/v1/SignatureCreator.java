@@ -1,4 +1,4 @@
-package com.kakakikikeke.sample;
+package com.kakakikikeke.sample.v1;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

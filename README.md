@@ -1,6 +1,7 @@
 java-signature
 =========
-Create a Signature for REST API Request.
+Create a Signature for REST API Request.  
+And, call AWS REST API.
 
 Version
 -------
@@ -14,7 +15,7 @@ Abstract
 
 * This source code is Java 
 * Input parameters for creating a Signature and you can get easily Signature string 
-* It is not a jar file, so you shuld copy this source code
+* You can call aws rest api, if create jar file using maven command
 
 How to Use
 ----------
@@ -27,11 +28,11 @@ How to Use
 
 ### To create a signature for v1
 
-* To Execute src/main/java/com/kakakikikeke/sample/SignatureCreator.java
+* To Execute src/main/java/com/kakakikikeke/sample/v1/SignatureCreator.java
 
 ### To create a signature for v2
 
-* To Execute src/main/java/com/kakakikikeke/sample/Signature2Creator.java
+* To Execute src/main/java/com/kakakikikeke/sample/v2/Signature2Creator.java
 
 ### To execute aws base rest API using signature v2
 
@@ -57,7 +58,7 @@ Configuration
 -------------
 
 * When you create signature v1, please input your key and action name and timestamp
-* And after run the `SignatureCreator.java`
+  * And after run the `SignatureCreator.java`
 
 ```java
 public static void main(String[] args) {
@@ -77,7 +78,7 @@ public static void main(String[] args) {
 ```
 
 * When you create signature v2, please input your access key, secret access key, action name and endpoint
-* And after run the `SignatureCreator.java`
+  * And after run the `SignatureCreator.java`
 
 ```java
 private String endpoint = "mq.jp-east-1.api.cloud.nifty.com";
