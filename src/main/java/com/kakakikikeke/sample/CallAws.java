@@ -308,6 +308,7 @@ public class CallAws {
 		String accesskey = "";
 		String secretkey = "";
 		boolean onlyXmlFlag = false;
+		boolean onlyResponseCodeFlag = false;
 		if (args.length == 0) {
 			showErrorAndExit();
 		}
@@ -335,6 +336,8 @@ public class CallAws {
 					secretkey = args[i + 1];
 				} else if (args[i].equals("--only-xml")) {
 					onlyXmlFlag = true;
+				} else if (args[i].equals("--only-res-code")) {
+					onlyResponseCodeFlag = true;
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -353,17 +356,35 @@ public class CallAws {
 			}
 		}
 		ca.call();
-		if (!onlyXmlFlag) {
+		if (onlyXmlFlag) {
+			System.out.println(ca.getResponceBody());
+		} else if (onlyResponseCodeFlag) {
+			System.out.println(ca.getResponceCode());
+		} else {
 			System.out.println(ca.getRequestURL());
 			System.out.println(ca.getResponceCode());
+			System.out.println(ca.getResponceBody());
 		}
-		System.out.println(ca.getResponceBody());
 	}
 
 	private static void showErrorAndExit() {
 		System.err.println("Usage : java -jar CallAws-jar-with-dependencies.jar -e endpoint -a actionname -b {\\\"key\\\";\\\"value\\\"}");
-		System.err.println("Options : -u unused ssl, -r requesturi, -p proxy, -v version, -nv not use version parameter");
-		System.err.println("Options : --accesskey xxxxxxxxx, --secretkey xxxxxxxxx");
+		System.err.println("  Options : -u");
+		System.err.println("          : unused ssl");
+		System.err.println("  Options : -r request/path");
+		System.err.println("          : specify request path");
+		System.err.println("  Options : -p proxy-server:8080");
+		System.err.println("          : specify your proxy server info");
+		System.err.println("  Options : -v version");
+		System.err.println("          : specify Version parameter value");
+		System.err.println("  Options : -nv");
+		System.err.println("          : not use Version parameter");
+		System.err.println("  Options : --accesskey xxxxxxxxx, --secretkey xxxxxxxxx");
+		System.err.println("          : if you want to use other key or do not write key.properties, you specify these parameters");
+		System.err.println("  Options : --only-xml");
+		System.err.println("          : show only xml in stdout");
+		System.err.println("  Options : --only-res-code");
+		System.err.println("          : show only response code in stdout, --only-xml is priority than --only-res-code");
 		System.exit(1);
 	}
 

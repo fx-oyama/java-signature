@@ -28,16 +28,21 @@ How to Use
 
 ### To create a signature for v1
 
-* To Execute src/main/java/com/kakakikikeke/sample/v1/SignatureCreator.java
+* for eclipse
+  1. Right click src/main/java/com/kakakikikeke/sample/v1/SignatureCreator.java
+  1. Run As -> Java Application
 
 ### To create a signature for v2
 
-* To Execute src/main/java/com/kakakikikeke/sample/v2/Signature2Creator.java
+* for eclipse
+  1. Right click src/main/java/com/kakakikikeke/sample/v2/Signature2Creator.java
+  1. Run As -> Java Application
 
 ### To execute aws base rest API using signature v2
 
-* `mvn clean compile package`
-* `java -jar target/CallAws-jar-with-dependencies.jar -a ListQueues -e mq.jp-east-1.api.cloud.nifty.com` 
+* for maven command
+  1. `mvn clean compile package`
+  2. `java -jar target/CallAws-jar-with-dependencies.jar -a ListQueues -e mq.jp-east-1.api.cloud.nifty.com` 
 
 #### jar options
 
@@ -53,6 +58,7 @@ How to Use
 * -nv ･･･ Not contain Version Parameter (-v)
 * --accesskey ･･･ Please input your accesskey or write to key.properties
 * --secretkey ･･･ Please input your secretkey or write to key.properties
+* --only-xml ･･･ Show a result only xml, exclude http request and response code in stdout
 
 Configuration
 -------------
