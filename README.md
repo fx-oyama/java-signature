@@ -59,6 +59,7 @@ How to Use
 * --accesskey ･･･ Please input your accesskey or write to key.properties
 * --secretkey ･･･ Please input your secretkey or write to key.properties
 * --only-xml ･･･ Show a result only xml, exclude http request and response code in stdout
+* --format-xml ･･･ Can be to show formatted xml
 
 Configuration
 -------------

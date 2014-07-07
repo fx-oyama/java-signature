@@ -1,6 +1,8 @@
 package com.kakakikikeke.sample;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +13,16 @@ import java.util.TreeMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -22,6 +34,9 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.kakakikikeke.sample.utils.KeyPropertiesManager;
 import com.kakakikikeke.sample.utils.Utils;
@@ -45,6 +60,7 @@ public class CallAws {
 	private boolean versionUseFlag;
 	private String accessKey;
 	private String secretKey;
+	private boolean formatXmlFlag;
 	private String requestURL;
 	private int responceCode;
 	private String responceBody;
@@ -53,7 +69,7 @@ public class CallAws {
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
 
-	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String version, boolean versionUseFlag, String accesskey, String secretkey) {
+	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String version, boolean versionUseFlag, String accesskey, String secretkey, boolean formatXmlFlag) {
 		checkAction(action);
 		checkJson(body);
 		this.hc = new HttpClient();
@@ -81,6 +97,7 @@ public class CallAws {
 		this.setVersionUseFlag(versionUseFlag);
 		this.setAccessKey(accesskey);
 		this.setSecretKey(secretkey);
+		this.setFormatXmlFlag(formatXmlFlag);
 		init();
 	}
 
@@ -179,6 +196,14 @@ public class CallAws {
 		this.secretKey = secretKey;
 	}
 
+	public boolean isFormatXmlFlag() {
+		return formatXmlFlag;
+	}
+
+	public void setFormatXmlFlag(boolean formatXmlFlag) {
+		this.formatXmlFlag = formatXmlFlag;
+	}
+
 	public String getRequestURL() {
 		return requestURL;
 	}
@@ -214,7 +239,11 @@ public class CallAws {
 		}
 		try {
 			this.setResponceCode(hc.executeMethod(hmb));
-			this.setResponceBody(hmb.getResponseBodyAsString());
+			if (isFormatXmlFlag()) {
+				this.setResponceBody(formatXml(hmb.getResponseBodyAsString()));
+			} else {
+				this.setResponceBody(hmb.getResponseBodyAsString());
+			}
 		} catch (HttpException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -296,6 +325,34 @@ public class CallAws {
 		return null;
 	}
 
+	public String formatXml(String str) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document xml = db.parse(new InputSource(new StringReader(str)));
+            xml.setXmlStandalone(true);
+            Transformer tf = TransformerFactory.newInstance().newTransformer();
+            tf.setOutputProperty(OutputKeys.INDENT , "yes");
+            tf.setOutputProperty(OutputKeys.METHOD , "xml");
+            tf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            //System.out.println(tf.getOutputProperties());
+            StringWriter sw = new StringWriter();
+            tf.transform(new DOMSource(xml), new StreamResult(sw));
+            return sw.toString();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+
 	public static void main(String... args) {
 		String endpoint = "";
 		String action = "";
@@ -309,6 +366,7 @@ public class CallAws {
 		String secretkey = "";
 		boolean onlyXmlFlag = false;
 		boolean onlyResponseCodeFlag = false;
+		boolean formatXmlFlag = false;
 		if (args.length == 0) {
 			showErrorAndExit();
 		}
@@ -338,12 +396,14 @@ public class CallAws {
 					onlyXmlFlag = true;
 				} else if (args[i].equals("--only-res-code")) {
 					onlyResponseCodeFlag = true;
+				} else if (args[i].equals("--format-xml")) {
+					formatXmlFlag = true;
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			showErrorAndExit();
 		}
-		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, version, versionUseFlag, accesskey, secretkey);
+		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, version, versionUseFlag, accesskey, secretkey, formatXmlFlag);
 		if (proxy != null && !proxy.equals("")) {
 			try {
 				String[] proxyInfo = proxy.split(":");
