@@ -445,6 +445,8 @@ public class CallAws {
 		System.err.println("          : show only xml in stdout");
 		System.err.println("  Options : --only-res-code");
 		System.err.println("          : show only response code in stdout, --only-xml is priority than --only-res-code");
+		System.err.println("  Options : --format-xml");
+		System.err.println("          : show formatted xml response");
 		System.exit(1);
 	}
 
