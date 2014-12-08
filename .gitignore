@@ -1,7 +1,7 @@
 # eclipse setting files
-.project
+#.project
 .class
-.classpath
+#.classpath
 .settings/
 dest/
 bin/
