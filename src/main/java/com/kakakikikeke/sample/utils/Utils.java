@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.Mac;
 
@@ -38,7 +40,11 @@ public class Utils {
 			Map.Entry<String, String> kvpair = iter.next();
 			buffer.append(percentEncodeRfc3986(kvpair.getKey()));
 			buffer.append("=");
-			buffer.append(percentEncodeRfc3986(kvpair.getValue()));
+			if (checkEncode(kvpair.getValue())) {
+				buffer.append(replaceEncodeAnother(kvpair.getValue()));
+			} else {
+				buffer.append(percentEncodeRfc3986(kvpair.getValue()));
+			}
 			if (iter.hasNext()) {
 				buffer.append("&");
 			}
@@ -50,10 +56,22 @@ public class Utils {
 	public static String percentEncodeRfc3986(String s) {
 		String out;
 		try {
-			out = URLEncoder.encode(s, UTF8_CHARSET).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
+			out = replaceEncodeAnother(URLEncoder.encode(s, UTF8_CHARSET));
 		} catch (UnsupportedEncodingException e) {
 			out = s;
 		}
+		return out;
+	}
+
+	public static String replaceEncodeAnother(String s) {
+		String out;
+		out = replaceNotEncodeAnother(s.replace("+", "%20").replace("*", "%2A"));
+		return out;
+	}
+
+	public static String replaceNotEncodeAnother(String s) {
+		String out;
+		out = s.replace("%7E", "~").replace("%2D", "-");
 		return out;
 	}
 
@@ -70,6 +88,17 @@ public class Utils {
 			throw new RuntimeException(UTF8_CHARSET + " is unsupported!", e);
 		}
 		return signature;
+	}
+
+	public static boolean checkEncode(String value) {
+		String regex = ".*%[0-9A-Z][0-9A-Z].*";
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(value);
+		if(m.find()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
