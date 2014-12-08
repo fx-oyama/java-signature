@@ -101,3 +101,5 @@ private String action = "API name";
 
 Tips
 ----
+
+* If you specify a policy json in SetQueueAttributes, you should set encoded policy json with uppercase to Attribute.Value
