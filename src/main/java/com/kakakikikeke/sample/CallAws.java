@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -57,6 +59,7 @@ public class CallAws {
 	private String protocol = "https://";
 	private String requestUri;
 	private String version;
+	private boolean bodyEncoded;
 	private boolean versionUseFlag;
 	private String accessKey;
 	private String secretKey;
@@ -69,7 +72,7 @@ public class CallAws {
 	private SecretKeySpec secretKeySpec = null;
 	private Mac mac = null;
 
-	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String version, boolean versionUseFlag, String accesskey, String secretkey, boolean formatXmlFlag) {
+	public CallAws(String endpoint, String action, String body, boolean unSecureFlag, String requestUri, String version, boolean bodyEncoded, boolean versionUseFlag, String accesskey, String secretkey, boolean formatXmlFlag) {
 		checkAction(action);
 		checkJson(body);
 		this.hc = new HttpClient();
@@ -94,6 +97,7 @@ public class CallAws {
 		}
 		this.setAction(action);
 		this.setBody(body);
+		this.setBodyEncoded(bodyEncoded);
 		this.setVersionUseFlag(versionUseFlag);
 		this.setAccessKey(accesskey);
 		this.setSecretKey(secretkey);
@@ -103,6 +107,17 @@ public class CallAws {
 
 	public void call() {
 		Map<String, String> params = convertMap(this.getBody());
+		if (isBodyEncoded()) {
+			Map<String, String> encodedParams = new HashMap<String, String>();
+			for (Entry<String, String> entry: params.entrySet()) {
+				try {
+					encodedParams.put(entry.getKey(), URLDecoder.decode(entry.getValue(), Utils.UTF8_CHARSET));
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			params = encodedParams;
+		}
 		params.put("Action", this.getAction());
 		params.put("AWSAccessKeyId", accessKey);
 		params.put("Timestamp", Utils.getTimestamp());
@@ -170,6 +185,14 @@ public class CallAws {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public boolean isBodyEncoded() {
+		return bodyEncoded;
+	}
+
+	public void setBodyEncoded(boolean bodyEncoded) {
+		this.bodyEncoded = bodyEncoded;
 	}
 
 	public boolean isVersionUseFlag() {
@@ -361,6 +384,7 @@ public class CallAws {
 		boolean versionUseFlag = false;
 		String proxy = null;
 		String version = "";
+		boolean bodyEncoded = false;
 		String requestUri = "";
 		String accesskey = "";
 		String secretkey = "";
@@ -386,6 +410,8 @@ public class CallAws {
 					proxy = args[i + 1];
 				} else if (args[i].equals("-v")) {
 					version = args[i + 1];
+				} else if (args[i].equals("-be")) {
+					bodyEncoded = true;
 				} else if (args[i].equals("-nv")) {
 					versionUseFlag = true;
 				} else if (args[i].equals("--accesskey")) {
@@ -403,7 +429,7 @@ public class CallAws {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			showErrorAndExit();
 		}
-		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, version, versionUseFlag, accesskey, secretkey, formatXmlFlag);
+		CallAws ca = new CallAws(endpoint, action, body, secureFlag, requestUri, version, bodyEncoded, versionUseFlag, accesskey, secretkey, formatXmlFlag);
 		if (proxy != null && !proxy.equals("")) {
 			try {
 				String[] proxyInfo = proxy.split(":");
@@ -437,6 +463,8 @@ public class CallAws {
 		System.err.println("          : specify your proxy server info");
 		System.err.println("  Options : -v version");
 		System.err.println("          : specify Version parameter value");
+		System.err.println("  Options : -be");
+		System.err.println("          : if body is url encoded");
 		System.err.println("  Options : -nv");
 		System.err.println("          : not use Version parameter");
 		System.err.println("  Options : --accesskey xxxxxxxxx, --secretkey xxxxxxxxx");
