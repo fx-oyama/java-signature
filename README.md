@@ -55,6 +55,7 @@ How to Use
   * Did not write the srash in first
 * -p ･･･ Proxy ex) -p proxy_host_name:8080
 * -v ･･･ API Version
+* -be ･･･ if body is url encoded
 * -nv ･･･ Not contain Version Parameter (-v)
 * --accesskey ･･･ Please input your accesskey or write to key.properties
 * --secretkey ･･･ Please input your secretkey or write to key.properties
