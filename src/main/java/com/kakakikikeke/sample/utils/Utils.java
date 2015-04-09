@@ -29,6 +29,15 @@ public class Utils {
 		return timestamp;
 	}
 
+	public static String getTimestamp(String format, String timezone) {
+		String timestamp = null;
+		Calendar cal = Calendar.getInstance();
+		DateFormat dfm = new SimpleDateFormat(format);
+		dfm.setTimeZone(TimeZone.getTimeZone(timezone));
+		timestamp = dfm.format(cal.getTime());
+		return timestamp;
+	}
+
 	public static String canonicalize(SortedMap<String, String> sortedParamMap) {
 		if (sortedParamMap.isEmpty()) {
 			return "";
