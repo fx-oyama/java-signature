@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 
 import com.kakakikikeke.sample.utils.Utils;
 
@@ -69,7 +70,9 @@ public class Signature4Creator {
 	}
 
 	static void execUrl(String url, Map<String, String> headers) throws HttpException, IOException {
-		HttpMethodBase hmb = new GetMethod(url);
+		// HttpMethodBase hmb = new GetMethod(url);
+		// for POST Method
+		HttpMethodBase hmb = new PostMethod(url);
 		for (Entry<String, String> entry : headers.entrySet()) {
 			hmb.setRequestHeader(entry.getKey(), entry.getValue());
 		}
@@ -89,7 +92,9 @@ public class Signature4Creator {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String method = "GET";
+		// String method = "GET";
+		// for POST Method
+		String method = "POST";
 		String service = "ec2";
 		String host = "ec2.amazonaws.com";
 		String region = "us-east-1";
