@@ -17,6 +17,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 import com.kakakikikeke.sample.utils.Utils;
 
@@ -69,12 +70,16 @@ public class Signature4Creator {
 		return buffer.toString();
 	}
 
-	static void execUrl(String url, Map<String, String> headers) throws HttpException, IOException {
+	static void execUrl(String url, Map<String, String> headers, String body) throws HttpException, IOException {
 		// HttpMethodBase hmb = new GetMethod(url);
 		// for POST Method
-		HttpMethodBase hmb = new PostMethod(url);
+		PostMethod hmb = new PostMethod(url);
 		for (Entry<String, String> entry : headers.entrySet()) {
 			hmb.setRequestHeader(entry.getKey(), entry.getValue());
+		}
+		if (body != null) {
+			StringRequestEntity entity = new StringRequestEntity(body, "application/x-www-form-urlencoded", "UTF-8");
+			hmb.setRequestEntity(entity);
 		}
 		System.out.println("======url======");
 		System.out.println(url);
@@ -85,10 +90,10 @@ public class Signature4Creator {
 		}
 		HttpClient hc = new HttpClient();
 		hc.getHostConfiguration().setProxy("sample.proxy.com", 8080);
-		int code = hc.executeMethod(hmb);
-		String body = hmb.getResponseBodyAsString();
-		System.out.println(code);
-		System.out.println(body);
+		int responseCode = hc.executeMethod(hmb);
+		String responseBody = hmb.getResponseBodyAsString();
+		System.out.println(responseCode);
+		System.out.println(responseBody);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -104,11 +109,13 @@ public class Signature4Creator {
 		String secretKey = "Please input your aws secretKey";
 		String amzdate = Utils.getTimestamp("yyyyMMdd'T'HHmmss'Z'", "UTC");
 		String datestamp = Utils.getTimestamp("yyyyMMdd", "UTC");
+		String body = null;
+		String amzTarget = "";
 		// Take 1
 		String canonicalURI = "/";
 		String canonicalQueryString = requestParameters;
-		String canonicalHeaders = "host:" + host + "\n" + "x-amz-date:" + amzdate + "\n";
-		String signedHeaders = "host;x-amz-date";
+		String canonicalHeaders = "host:" + host + "\n" + "x-amz-date:" + amzdate + "\n" + "x-amz-target:" + amzTarget + "\n";
+		String signedHeaders = "host;x-amz-date;x-amz-target";
 		String payloadHash = getDigest("");
 		String canonicalRequest = method + "\n" + canonicalURI + "\n" + canonicalQueryString + "\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + payloadHash;
 		System.out.println("======canonicalRequest======");
@@ -135,8 +142,9 @@ public class Signature4Creator {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("host", host);
 		headers.put("x-amz-date", amzdate);
+		headers.put("x-amz-target", amzTarget);
 		headers.put("Authorization", authorizationHeader);
-		execUrl(requestURL, headers);
+		execUrl(requestURL, headers, body);
 	}
 
 }
